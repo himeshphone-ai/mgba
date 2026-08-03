@@ -1387,3 +1387,8 @@ if(NOT QUIET AND NOT LIBMGBA_ONLY)
 	message(STATUS "	Static: ${BUILD_STATIC}")
 	message(STATUS "	Shared: ${BUILD_SHARED}")
 endif()
+# Add Android JNI bridge when compiling for Android
+if(ANDROID)
+    list(APPEND CORE_SRC src/platform/android-jni.c)
+	endif()
+	
