@@ -1,0 +1,31 @@
+name: Build Android ARM64 mGBA Core
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+      - master
+
+jobs:
+  build-android:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup Android NDK
+        uses: nkmrsh/setup-ndk-action@v1
+        with:
+          ndk-version: r25c
+
+      - name: Cross-Compile mGBA Core for ARM64
+        run: |
+          make -f Makefile.libretro platform=android-arm64-v8a
+
+      - name: Upload Android ARM64 Core
+        uses: actions/upload-artifact@v4
+        with:
+          name: mgba_libretro_android_arm64
+          path: mgba_libretro.so
