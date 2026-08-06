@@ -15,14 +15,14 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@v4
 
-      - name: Setup Android NDK
-        uses: nkmrsh/setup-ndk-action@v1
-        with:
-          ndk-version: r25c
+      - name: Install Android NDK
+        run: |
+          yes | ${ANDROID_HOME}/cmdline-tools/latest/bin/sdkmanager --install "ndk;25.2.9519653"
+          echo "ANDROID_NDK_HOME=${ANDROID_HOME}/ndk/25.2.9519653" >> $GITHUB_ENV
 
       - name: Cross-Compile mGBA Core for ARM64
         run: |
-          make -f Makefile.libretro platform=android-arm64-v8a
+          make -f Makefile.libretro platform=android-arm64-v8a NDK_ROOT=${ANDROID_NDK_HOME}
 
       - name: Upload Android ARM64 Core
         uses: actions/upload-artifact@v4
