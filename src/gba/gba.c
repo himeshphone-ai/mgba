@@ -963,32 +963,18 @@ void GBAFrameStarted(struct GBA* gba) {
 	GBATestKeypadIRQ(gba);
 	mCALLBACKS_INVOKE(gba, videoFrameStarted);
 }
-extern void Android_ShowKeyboard(void);
-void GBAFrameEnded(struct GBA* gba) {
-    // --- Gboard Intercept Hook ---
-	if (gba && gba->memory.wram) {
-			        uint8_t* ewram = (uint8_t*)gba->memory.wram;
-					        
-							        // Read status flag at 0x0203CE00 (EWRAM offset 0x3CE00)
-									        if (ewram[0x3CE00] == 1) {
-											            #ifdef __ANDROID__
-														            // Trigger Android Java to show Gboard keyboard
-																	            Android_ShowKeyboard();
-																				            // Set status to 3 so it doesn't fire repeatedly while keyboard is open
-																							            ewram[0x3CE00] = 3; 
-																										            #else
-																													            // Fallback for non-Android desktop testing
-																																            char testText[] = "ASH";
-																																			            for (int i = 0; testText[i] != '\0'; i++) {
-																																						                ewram[0x3CE04 + i] = (uint8_t)testText[i];
-																																										            }
-																																													            ewram[0x3CE00] = 2; // Signal complete
-																																																            #endif
-																																																			        }
-																																																					    }
 
-}
-																																																
+void GBAFrameEnded(struct GBA* gba) {
+	if (gba && gba->memory.wram) {
+		uint8_t* ewram = (uint8_t*)gba->memory.wram;
+		if (ewram[0x3CE00] == 1) {
+			ewram[0x3CE04] = 'A';
+			ewram[0x3CE05] = 'S';
+			ewram[0x3CE06] = 'H';
+			ewram[0x3CE07] = 0;
+			ewram[0x3CE00] = 2;
+		}
+	}
 	int wasDirty = gba->memory.savedata.dirty;
 	GBASavedataClean(&gba->memory.savedata, gba->video.frameCounter);
 
