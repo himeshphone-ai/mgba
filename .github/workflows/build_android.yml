@@ -2,31 +2,41 @@ name: Build Android ARM64 mGBA Core
 
 on:
   workflow_dispatch:
-  push:
-    branches:
-      - main
-      - master
+    push:
+        branches:
+              - main
+                    - master
 
-jobs:
-  build-android:
-    runs-on: ubuntu-latest
+                    jobs:
+                      build-android:
+                          runs-on: ubuntu-latest
 
-    steps:
-      - name: Checkout Code
-        uses: actions/checkout@v4
+                              steps:
+                                    - name: Checkout Code
+                                            uses: actions/checkout@v4
 
-      - name: Setup Android NDK
-        uses: nttld/setup-ndk@v1
-        id: setup-ndk
-        with:
-          ndk-version: r25c
+                                                  - name: Setup Android NDK
+                                                          uses: nttld/setup-ndk@v1
+                                                                  id: setup-ndk
+                                                                          with:
+                                                                                    ndk-version: r25c
 
-      - name: Cross-Compile mGBA Core for ARM64
-        run: |
-          make -f Makefile.libretro platform=android-arm64-v8a NDK_ROOT=${{ steps.setup-ndk.outputs.ndk-path }}
+                                                                                          - name: Cross-Compile mGBA Core for ARM64
+                                                                                                  run: |
+                                                                                                            mkdir build && cd build
+                                                                                                                      cmake .. \
+                                                                                                                                  -DCMAKE_TOOLCHAIN_FILE=${{ steps.setup-ndk.outputs.ndk-path }}/build/cmake/android.toolchain.cmake \
+                                                                                                                                              -DANDROID_ABI=arm64-v8a \
+                                                                                                                                                          -DANDROID_PLATFORM=android-21 \
+                                                                                                                                                                      -DBUILD_LIBRETRO=ON \
+                                                                                                                                                                                  -DBUILD_QT=OFF \
+                                                                                                                                                                                              -DBUILD_SDL=OFF \
+                                                                                                                                                                                                          -DBUILD_GL=OFF
+                                                                                                                                                                                                                    make -j$(nproc)
 
-      - name: Upload Android ARM64 Core
-        uses: actions/upload-artifact@v4
-        with:
-          name: mgba_libretro_android_arm64
-          path: "*.so"
+                                                                                                                                                                                                                          - name: Upload Android ARM64 Core
+                                                                                                                                                                                                                                  uses: actions/upload-artifact@v4
+                                                                                                                                                                                                                                          with:
+                                                                                                                                                                                                                                                    name: mgba_libretro_android_arm64
+                                                                                                                                                                                                                                                              path: "**/*.so"
+                                                                                                                                                                                                                                                              
